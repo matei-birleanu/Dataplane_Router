@@ -1,35 +1,56 @@
-Bîrleanu Teodor Matei 324 CA 
+# DataPlane Router
 
+**Author:** Teodor Matei Bîrleanu  
+**Group:** 324 CA  
 
-                                        README TEMA 1
-                                        DATAPLANE ROUTER
+---
 
-        Voi prezenta pe scurt implementarea pe care am folosit o pentru procesul
-    procesul de dirijare. 
-        Pentru protocolul IPv4 am folosit o functie care construieste header ul 
-    specific pentru o modularizarea mai buna. In functie de campul "type" din 
-    cadrul Ethernet am impartit logica programului in 2 parti: protocol IPv4 si 
-    protocol ARP. Pe ramura cu IPv4 am verificat toate cazurile pentru care nu pot 
-    trimite mai departe pachetul( ex : mi se adreseaza mie, a expirat ttl ul =>  ICMP 
-    Time Exceeded etc). Dupa aceasta am folosit algoritmul LPM pentru a gasi in tabela 
-    de rutare next_hop. Daca nu este gasit voi trimite un mesaj de tip ICMP Destination 
-    Unreachable. In caz ca am gasit voi cauta in tabela arp adresa MAC a urmatoarei
-    destinatii. Daca nu o gasesc voi realiza de la 0 un pachet de tip Arp request pentru 
-    a interoga si a afla precum voi descrie la protocolul Arp. Daca am deja adresa MAC 
-    atunci voi trimite pachetul avand toate informatiile necesare despre destinate.
-        Pentru protocolul Arp voi avea doua cazuri daca primesc un Arp reply inseamna ca
-    pot adaugat in tabela Arp dinamica noua intrare dupa care extrag primul pachet din 
-    coada si l trimit cu ajutorul raspunsului de la Arp reply. Daca primesc un Arp request
-    voi trimite un pachet de broadcast pe interfata respectiva pentru a afla adresa MAC
-    asociata acelei adrese IP.
-        Pentru a eficientiza cautarea in tabela de rutare am folosit cautarea binara. Am 
-    utilizat functia qsort pentru a sorta tabela crescator dupa prefix si pentru egalitate
-    crescator dupa masca. Am modificat functia "get_best_route" din cadrul laboratorului 4
-    folosind astfel cautare binara, conditiile de cautare ramanand aceleasi.(caut dupa prefix
-    iar daca gasesec un alt prefix cu o masca mai mare il aleg pe acela)
+## Overview
+This project implements a DataPlane Router, addressing routing and packet forwarding processes using IPv4, ARP protocols, and ICMP messages. The implementation focuses on modular design and efficient routing using the Longest Prefix Match (LPM) algorithm with binary search.
 
-    Cerinte rezolvate:
-        - Protocolul ARP
-        - Procesul de dirijare
-        - Protocoul ICMP
-        - Longest Prefix Match (Cautare binara)
+---
+
+## Implementation Details
+
+### Protocol IPv4
+- **Header Construction:**
+  - A dedicated function constructs the IPv4 header to ensure modularity.
+- **Packet Processing Logic:**
+  - The program logic is split based on the Ethernet "type" field:
+    1. **IPv4 Protocol:**
+       - Handles cases where the packet cannot be forwarded (e.g., addressed to the router, TTL expired).
+       - Generates ICMP messages for specific scenarios (e.g., Time Exceeded, Destination Unreachable).
+       - Utilizes the **Longest Prefix Match (LPM)** algorithm to find the next hop in the routing table.
+       - If `next_hop` is not found, sends an ICMP Destination Unreachable message.
+       - If `next_hop` is found:
+         - Searches for the MAC address in the ARP table.
+         - If MAC is not found, generates an ARP Request packet.
+         - If MAC is found, forwards the packet to the destination.
+
+### Protocol ARP
+- **Handling ARP Replies:**
+  - Dynamically updates the ARP table with the new entry.
+  - Extracts the first packet from the queue and sends it using the MAC address from the ARP Reply.
+- **Handling ARP Requests:**
+  - Sends a broadcast packet on the respective interface to discover the MAC address associated with the requested IP.
+
+### Routing Table Optimization
+- **Binary Search for Efficient Lookup:**
+  - The routing table is sorted using `qsort` in ascending order by prefix and, in case of ties, by mask.
+  - Modified the `get_best_route` function from Lab 4 to implement binary search.
+  - Retains the same conditions for selecting the best route:
+    - Matches by prefix.
+    - Prefers entries with larger masks for the same prefix.
+
+---
+
+## Features Implemented
+- ARP Protocol
+- Routing Process
+- ICMP Protocol
+- Longest Prefix Match (Binary Search)
+
+---
+
+## Thank You!
+For further questions or clarifications, feel free to contact the author.
